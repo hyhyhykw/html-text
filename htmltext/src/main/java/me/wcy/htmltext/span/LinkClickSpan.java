@@ -1,6 +1,5 @@
 package me.wcy.htmltext.span;
 
-import android.content.Context;
 import android.text.style.ClickableSpan;
 import android.view.View;
 
@@ -11,11 +10,9 @@ import me.wcy.htmltext.OnTagClickListener;
  */
 public class LinkClickSpan extends ClickableSpan {
     private OnTagClickListener listener;
-    private Context context;
-    private String url;
+    private final String url;
 
-    public LinkClickSpan(Context context, String url) {
-        this.context = context;
+    public LinkClickSpan(String url) {
         this.url = url;
     }
 
@@ -26,7 +23,7 @@ public class LinkClickSpan extends ClickableSpan {
     @Override
     public void onClick(View widget) {
         if (listener != null) {
-            listener.onLinkClick(context, url);
+            listener.onLinkClick(widget, url);
         }
     }
 }

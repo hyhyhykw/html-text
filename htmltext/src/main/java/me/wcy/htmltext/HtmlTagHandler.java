@@ -64,12 +64,12 @@ class HtmlTagHandler implements Html.TagHandler {
      * Keeps track of lists (ol, ul). On bottom of Stack is the outermost list
      * and on top of Stack is the most nested list
      */
-    private Stack<String> lists = new Stack<>();
+    private final Stack<String> lists = new Stack<>();
     /**
      * Tracks indexes of ordered lists so that after a nested list ends
      * we can continue with correct index of outer list
      */
-    private Stack<Integer> olNextIndex = new Stack<>();
+    private final Stack<Integer> olNextIndex = new Stack<>();
 
     private static final int indent = 10;
     private static final int listItemIndent = indent * 2;
@@ -258,7 +258,7 @@ class HtmlTagHandler implements Html.TagHandler {
     /**
      * Modified from {@link android.text.Html}
      */
-    private void end(Editable output, Class kind, boolean paragraphStyle, Object... replaces) {
+    private void end(Editable output, Class<?> kind, boolean paragraphStyle, Object... replaces) {
         Object obj = getLast(output, kind);
         // start of the tag
         int where = output.getSpanStart(obj);
@@ -352,7 +352,7 @@ class HtmlTagHandler implements Html.TagHandler {
     /**
      * Get last marked position of a specific tag kind (private class)
      */
-    private static Object getLast(Editable text, Class kind) {
+    private static Object getLast(Editable text, Class<?> kind) {
         Object[] objs = text.getSpans(0, text.length(), kind);
         if (objs.length == 0) {
             return null;

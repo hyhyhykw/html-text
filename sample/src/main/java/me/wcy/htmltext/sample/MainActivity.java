@@ -1,21 +1,19 @@
 package me.wcy.htmltext.sample;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,6 +21,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import me.wcy.htmltext.HtmlImageLoader;
 import me.wcy.htmltext.HtmlText;
 import me.wcy.htmltext.OnTagClickListener;
@@ -44,17 +46,21 @@ public class MainActivity extends AppCompatActivity {
                     public void loadImage(String url, final Callback callback) {
                         // Glide sample, you can also use other image loader
                         Glide.with(MainActivity.this)
-                                .load(url)
                                 .asBitmap()
-                                .into(new SimpleTarget<Bitmap>() {
+                                .load(url)
+                                .into(new CustomTarget<Bitmap>() {
                                     @Override
-                                    public void onResourceReady(Bitmap resource,
-                                                                GlideAnimation<? super Bitmap> glideAnimation) {
+                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                                         callback.onLoadComplete(resource);
                                     }
 
                                     @Override
-                                    public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                                    }
+
+                                    @Override
+                                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                        super.onLoadFailed(errorDrawable);
                                         callback.onLoadFailed();
                                     }
                                 });
@@ -77,22 +83,22 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public boolean fitWidth() {
-                        return false;
+                        return true;
                     }
                 })
                 .setOnTagClickListener(new OnTagClickListener() {
                     @Override
-                    public void onImageClick(Context context, List<String> imageUrlList, int position) {
-                        Toast.makeText(context, "image click, position: " + position + ", url: " + imageUrlList.get(position), Toast.LENGTH_SHORT).show();
+                    public void onImageClick(View context, List<String> imageUrlList, int position) {
+                        Toast.makeText(MainActivity.this, "image click, position: " + position + ", url: " + imageUrlList.get(position), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
-                    public void onLinkClick(Context context, String url) {
-                        Toast.makeText(context, "url click: " + url, Toast.LENGTH_SHORT).show();
+                    public void onLinkClick(View context, String url) {
+                        Toast.makeText(MainActivity.this, "url click: " + url, Toast.LENGTH_SHORT).show();
                         try {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
                             intent.setData(Uri.parse(url));
-                            context.startActivity(intent);
+                            context.getContext().startActivity(intent);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -103,7 +109,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String getSample() {
         try {
-            InputStream is = getResources().openRawResource(R.raw.sample);
+            InputStream is = getAssets().open("sample.html");
+
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
             String line;
